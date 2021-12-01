@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace WindowsFormsApp1
 {
-    class transfer_history_db
+    class transfer_history_db 
     {
         private SQLiteConnection m_dbConnection;
         private string database_path;
