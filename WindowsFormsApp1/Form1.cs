@@ -224,7 +224,8 @@ namespace WindowsFormsApp1
 
             public int getTotalCountofFiles(string dir)
             {
-                var files = Directory.EnumerateFiles(dir + "\\", "*", SearchOption.AllDirectories);
+                var files = Directory.EnumerateFiles(dir + "\\", "*", SearchOption.AllDirectories).Where(f => !new FileInfo(f).Attributes.HasFlag(FileAttributes.Hidden))
+                                                .Where(f => !new FileInfo(f).Attributes.HasFlag(FileAttributes.System));
                 return files.Count();
             }
 
@@ -251,10 +252,31 @@ namespace WindowsFormsApp1
                 stop_move_disk2 = "stop";
             }
 
+            public string create_another_target(string folder)
+            {
+                folder = folder.TrimEnd('\\', ' ');
+                for (int i=1;i<=100;i++)
+                {
+                    if(!Directory.Exists(folder+"_"+i.ToString()))
+                    {
+                        return folder + "_" + i.ToString();
+                    }
+                }
+
+                return folder + "_101" ;
+            }
+
 
             public void startMoveDisk1(string source, string target)
             {
-                
+                source = source + "\\";
+                target = target + "\\";
+
+                if (Directory.Exists(target))
+                {
+                    target= create_another_target(target);
+                }
+
                 Thread t1 = new Thread(
                              () =>
                              {
@@ -274,16 +296,20 @@ namespace WindowsFormsApp1
 
                                  move_percent_disk1 = 0;
 
+                              
+
                                  var sourcePath = source.TrimEnd('\\', ' ');
                                  var targetPath = target.TrimEnd('\\', ' ');
                                  var files = Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories)
+                                                   .Where(f => !new FileInfo(f).Attributes.HasFlag(FileAttributes.Hidden))
+                                                .Where(f => !new FileInfo(f).Attributes.HasFlag(FileAttributes.System))
                                                       .GroupBy(s => Path.GetDirectoryName(s));
 
 
 
                                  
-                foreach (var folder in files)
-                {
+                                foreach (var folder in files)
+                                {
 
                                      if (stop_move_disk1 != "")
                                      {
@@ -291,19 +317,29 @@ namespace WindowsFormsApp1
                                      }
 
                                      var targetFolder = folder.Key.Replace(sourcePath, targetPath);
-                    Directory.CreateDirectory(targetFolder);
-                    foreach (var file in folder)
-                    {
-                                         /////обработка команды остановки
-                                         if (stop_move_disk1 != "")
-                                         {
-                                             break;
-                                         }
+                                        Directory.CreateDirectory(targetFolder);
+                                        foreach (var file in folder)
+                                        {
+                                                             /////обработка команды остановки
+                                                             if (stop_move_disk1 != "")
+                                                             {
+                                                                 break;
+                                                             }
 
                                          var targetFile = Path.Combine(targetFolder, Path.GetFileName(file));
-                        if (File.Exists(targetFile)) File.Delete(targetFile);
-                        File.Copy(file, targetFile);
-                        current_file = current_file + 1;
+                                         if (File.Exists(targetFile))
+                                         {
+                                             File.Delete(targetFile);
+                                         }
+
+                                         if (File.Exists(file))
+                                         {
+                                             File.Copy(file, targetFile);
+                                         } else
+                                         {
+                                             string eee = "";
+                                         }
+                                        current_file = current_file + 1;
 
                                          double percent_progress = Math.Round((double)(current_file * 100) / total_count_of_files, 2);
 
@@ -336,6 +372,14 @@ namespace WindowsFormsApp1
             public void startMoveDisk2(string source, string target)
             {
 
+                source = source + "\\";
+                target = target + "\\";
+
+                if (Directory.Exists(target))
+                {
+                    target = create_another_target(target);
+                }
+
                 Thread t1 = new Thread(
                              () =>
                              {
@@ -355,9 +399,13 @@ namespace WindowsFormsApp1
 
                                  move_percent_disk2 = 0;
 
+
+
                                  var sourcePath = source.TrimEnd('\\', ' ');
                                  var targetPath = target.TrimEnd('\\', ' ');
                                  var files = Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories)
+                                                    .Where(f => !new FileInfo(f).Attributes.HasFlag(FileAttributes.Hidden))
+                                                .Where(f => !new FileInfo(f).Attributes.HasFlag(FileAttributes.System))
                                                       .GroupBy(s => Path.GetDirectoryName(s));
 
 
@@ -382,8 +430,19 @@ namespace WindowsFormsApp1
                                          }
 
                                          var targetFile = Path.Combine(targetFolder, Path.GetFileName(file));
-                                         if (File.Exists(targetFile)) File.Delete(targetFile);
-                                         File.Copy(file, targetFile);
+                                         if (File.Exists(targetFile))
+                                         {
+                                             File.Delete(targetFile);
+                                         }
+
+                                         if (File.Exists(file))
+                                         {
+                                             File.Copy(file, targetFile);
+                                         }
+                                         else
+                                         {
+                                             string eee = "";
+                                         }
                                          current_file = current_file + 1;
 
                                          double percent_progress = Math.Round((double)(current_file * 100) / total_count_of_files, 2);
@@ -404,7 +463,7 @@ namespace WindowsFormsApp1
                                  {
 
                                      move_status_disk2 = "done";
-                                     move_percent_disk2 = 100;
+                                     move_percent_disk2= 100;
                                  }
                              });
 
@@ -542,7 +601,7 @@ namespace WindowsFormsApp1
       
                     ///существует ли такой же контакт
 
-                    SQLiteDataReader myReader = transfer_history_db.select_query("SELECT * FROM transfer_history");
+                    SQLiteDataReader myReader = transfer_history_db.select_query("SELECT * FROM transfer_history order by id desc");
                     List<transfer_history> all_history = new List<transfer_history>();
 
                     while (myReader.Read())
@@ -596,7 +655,8 @@ namespace WindowsFormsApp1
                         {
                             directory = Path.GetFileName(d);
                             ///тут будем узнавать размер директории
-                            var files = Directory.EnumerateFiles(dir + "\\" + directory + "\\", "*", SearchOption.AllDirectories);
+                            var files = Directory.EnumerateFiles(dir + "\\" + directory + "\\", "*", SearchOption.AllDirectories).Where(f => !new FileInfo(f).Attributes.HasFlag(FileAttributes.Hidden))
+                                                .Where(f => !new FileInfo(f).Attributes.HasFlag(FileAttributes.System)); ;
                             long size = (from file in files let fileInfo = new FileInfo(file) select fileInfo.Length).Sum();
 
                             directory_in_path directory_in_path = new directory_in_path();
@@ -789,8 +849,13 @@ namespace WindowsFormsApp1
                     if (Directory.Exists(disk1folder))
                     {
                         disk_info_answer.status_disk1 = "active";
+
+                        var mask = FileAttributes.Hidden | FileAttributes.System;
                         ///считаем размер
-                        var files = Directory.EnumerateFiles(disk1folder, "*", SearchOption.AllDirectories);
+                        var files = Directory.EnumerateFiles(disk1folder, "*", SearchOption.AllDirectories)
+                                                .Where(f => !new FileInfo(f).Attributes.HasFlag(FileAttributes.Hidden))
+                                                .Where(f => !new FileInfo(f).Attributes.HasFlag(FileAttributes.System));
+                                                
                         long size = (from file in files let fileInfo = new FileInfo(file) select fileInfo.Length).Sum();
                         disk_info_answer.size_disk1 = size;
                         disk_info_answer.disk_1_real_path = disk1folder;
@@ -807,7 +872,9 @@ namespace WindowsFormsApp1
                     {
                         disk_info_answer.status_disk2 = "active";
                         ///считаем размер
-                        var files = Directory.EnumerateFiles(disk2folder, "*", SearchOption.AllDirectories);
+                        var files = Directory.EnumerateFiles(disk2folder, "*", SearchOption.AllDirectories)
+                               .Where(f => !new FileInfo(f).Attributes.HasFlag(FileAttributes.Hidden))
+                                                .Where(f => !new FileInfo(f).Attributes.HasFlag(FileAttributes.System));
                         long size = (from file in files let fileInfo = new FileInfo(file) select fileInfo.Length).Sum();
                         disk_info_answer.size_disk2 = size;
                         disk_info_answer.disk_2_real_path = disk2folder;
