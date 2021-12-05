@@ -300,6 +300,8 @@ namespace WindowsFormsApp1
 
                                  var sourcePath = source.TrimEnd('\\', ' ');
                                  var targetPath = target.TrimEnd('\\', ' ');
+
+                                 targetPath = targetPath + "\\";
                                  var files = Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories)
                                                    .Where(f => !new FileInfo(f).Attributes.HasFlag(FileAttributes.Hidden))
                                                 .Where(f => !new FileInfo(f).Attributes.HasFlag(FileAttributes.System))
@@ -400,9 +402,11 @@ namespace WindowsFormsApp1
                                  move_percent_disk2 = 0;
 
 
-
                                  var sourcePath = source.TrimEnd('\\', ' ');
                                  var targetPath = target.TrimEnd('\\', ' ');
+
+                                 targetPath = targetPath + "\\";
+
                                  var files = Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories)
                                                     .Where(f => !new FileInfo(f).Attributes.HasFlag(FileAttributes.Hidden))
                                                 .Where(f => !new FileInfo(f).Attributes.HasFlag(FileAttributes.System))
