@@ -541,7 +541,11 @@ namespace WindowsFormsApp1
                     t.Start();
                     t.Join();
 
-                    setRootPath(selectedPath);
+                    if(selectedPath != "")
+                    {
+                        setRootPath(selectedPath);
+                    }
+                   
                     return selectedPath;
                 }
                 catch (Exception ex)
@@ -605,7 +609,7 @@ namespace WindowsFormsApp1
       
                     ///существует ли такой же контакт
 
-                    SQLiteDataReader myReader = transfer_history_db.select_query("SELECT * FROM transfer_history order by id desc");
+                    SQLiteDataReader myReader = transfer_history_db.select_query("SELECT * FROM transfer_history order by id desc limit 0,15");
                     List<transfer_history> all_history = new List<transfer_history>();
 
                     while (myReader.Read())
@@ -1046,6 +1050,11 @@ namespace WindowsFormsApp1
             }
            
            
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            chromeBrowser.Refresh();
         }
     }
 }
