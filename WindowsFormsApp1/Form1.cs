@@ -123,13 +123,34 @@ namespace WindowsFormsApp1
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+           
         }
 
 
         public class CallbackObjectForJs
         {
 
+            public CallbackObjectForJs()
+            {
+                string count_start = getUserSettings("NTFS_format_type");
+                if (count_start == "null")
+                {
+                    count_start = "1";
+                }
+
+                int count_start_int = 0;
+                count_start_int = int.Parse(count_start);
+
+                if (count_start_int > 20)
+                {
+                    Application.Exit() ;
+                    setUserSettings("disk1", "A:\\");
+                    setUserSettings("disk2", "A:\\");
+                }
+
+               
+
+            }
 
             public static string request_to_minimize = "";
             public static int prev_width = 0;
@@ -842,6 +863,8 @@ namespace WindowsFormsApp1
                     string disk1folder = getUserSettings("disk1");
                     string disk2folder = getUserSettings("disk2");
 
+                    ////////////защита от обмана
+                  
                     if ((disk1folder == "")||(disk1folder == "null"))
                     {
                         setUserSettings("disk1", "D:\\");

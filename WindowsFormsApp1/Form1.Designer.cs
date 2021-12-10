@@ -35,7 +35,6 @@ namespace WindowsFormsApp1
             // 
             // timer1
             // 
-            this.timer1.Enabled = true;
             this.timer1.Interval = 5000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
@@ -46,7 +45,7 @@ namespace WindowsFormsApp1
             this.ClientSize = new System.Drawing.Size(966, 719);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "Form1";
-            this.Text = "Первая тестовая версия";
+            this.Text = "Вторая тестовая версия";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Resize += new System.EventHandler(this.Form1_Resize);
             this.ResumeLayout(false);
